@@ -8,7 +8,7 @@ public class Conectora {
     // Declara atributos para la conexión con la base de datos
     private static final String bbdd="jdbc:mysql://localhost:3306/marte";
     private static final String usuario="root";
-    private static final String clave="titi";
+    private static final String clave="";
     public static Connection con;
 
 // Declarar método de conexión

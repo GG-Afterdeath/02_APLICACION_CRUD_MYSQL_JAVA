@@ -1,8 +1,12 @@
 model\Conectora.class
+model\DaviplataDAO.class
+model\NequiVO.class
 controller\Bolsillo.class
 model\UsuarioDAO.class
 Bolsillo_digital\Daviplata.class
 Bolsillo_digital\Nequi.class
+model\DaviplataVO.class
 model\UsuarioVO.class
 Bolsillo_digital\Bolsillito.class
 controller\Usuario.class
+model\NequiDAO.class

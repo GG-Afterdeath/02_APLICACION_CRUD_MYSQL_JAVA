@@ -1,5 +1,6 @@
 package controller;
 import java.io.IOException;
+import java.sql.SQLException;
 
 import javax.crypto.SealedObject;
 import javax.servlet.RequestDispatcher;
@@ -9,59 +10,50 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import Bolsillo_digital.Nequi;
+import model.Conectora;
+import model.DaviplataDAO;
+import model.DaviplataVO;
+import model.NequiDAO;
+import model.NequiVO;
 import Bolsillo_digital.Daviplata;
 
 public class Bolsillo extends HttpServlet {
 // Declaración variables e instancias de las clases de manera fija
-Daviplata da = new Daviplata();
-Nequi ne = new Nequi();
 
+NequiDAO nDAO = new NequiDAO();
+NequiVO nVO = new NequiVO();
 
-
-
+DaviplataDAO dDAO = new DaviplataDAO();
+DaviplataVO DVO = new DaviplataVO();
 
 // Para la navegabilidad, se evalua en una variable los posibles valores del parámetro
 // El nombre de la variable, se aconseja que sea el mismo del parámetro a evaluar
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-       
-
-       String accionesB = req.getParameter("accionesB");
     
-
+       String accionesB = req.getParameter("accionesB");
        switch(accionesB){   
-// req.getRequestDispatcher Para acceder a los bolsillos
-
-
         case "nequi":
-            req.getRequestDispatcher("nequi.jsp").forward(req, resp);
+            req.getRequestDispatcher("view/nequi.jsp").forward(req, resp);
         break;
 
         case "daviplata":
-            req.getRequestDispatcher("daviplata.jsp").forward(req, resp);
+            req.getRequestDispatcher("view/daviplata.jsp").forward(req, resp);
         break;
-        
-
-// Casos de Daviplata
-        case "recarga":
-            req.getRequestDispatcher("recarga.jsp").forward(req, resp);
-            System.out.println("Dirigiendo a la vista recarga.  Terminado...");
-            break;
-
-        case "retiro":
-            req.getRequestDispatcher("retiro.jsp").forward(req, resp);
-            System.out.println("Dirigiendo a la vista retiro.  Terminado...");
-            break;
-// Se guarda el valor de un atributo en una variable. a la cual settearemos en un objeto para imprimir
-        case "consulta":
-            double dConsultado = da.saldoConsultar();
-            req.setAttribute("valorCn", da.saldoConsultar());
-            req.getRequestDispatcher("consulta.jsp").forward(req, resp);
-            System.out.println("Dirigiendo a la vista consulta.  Terminado...");
-                System.out.println("El saldo se ha consultado Terminado...");
-            break;
             
+        case "recargaD":
+            req.getRequestDispatcher("view/recarga.jsp").forward(req, resp);
+        break;
+
+        case "retiroD":
+            req.getRequestDispatcher("view/retiro.jsp").forward(req, resp);
+        break;
+
+        case "consultaD":
+            req.getRequestDispatcher("view/consulta.jsp").forward(req, resp);
+        break;
+
         case "regreso":
             req.getRequestDispatcher("daviplata.jsp").forward(req, resp);
         break;
@@ -70,61 +62,136 @@ Nequi ne = new Nequi();
 }
 
 
-    
-    
-@Override
-protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-// Declaramos variables para tomar el valor de los parámetros    
 
-// Declaración variables para manejar el capital
-    double mRecarga;
 
-    
-    String manejo = req.getParameter("manejo");
-            System.out.println(manejo);
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         
-        double mRetiro;
-        switch (manejo){
-            case "recargar":
-// Geteamos los datos enviados mediante el parámetro y los guardamos en una variable
-                mRecarga =Double.parseDouble(req.getParameter("masplata"));
-                da.saldoRecargar(mRecarga);
-// Impresión de consola pra verificar el correcto funcionamiento
-                System.out.println("Recarga de " + mRecarga + " en Daviplata exitosa.  Terminado...");
-                req.setAttribute("valorRg", mRecarga);
-                req.getRequestDispatcher("r_resultado.jsp").forward(req, resp);
+        String accionesB = req.getParameter("accionesB");
+        switch(accionesB){
+            case "recargaN":
+                saldoRecargar(req, resp);
             break;
 
-            case "retirar":
-                mRetiro = Double.parseDouble((req.getParameter("menplata")));
-                da.saldoRetirar(mRetiro);
-                System.out.println("Retiro de " + mRetiro + " en Daviplata exitoso.   Terminado...");
-                req.setAttribute("valorRt", mRetiro);
-                req.getRequestDispatcher("ret_resul.jsp").forward(req, resp);
+            case "retiro":
+                saldoRetirar(req, resp);
             break;
-            
-          /*   case "consultar":
-                double dConsultado = da.saldoConsultar();
-                System.out.println("El total de su Davisaldo es de: " + da.saldoConsultar() + "   Terminado...");
-                req.setAttribute("valorCn", dConsultado);
-            break; */
-
-            case "recargad":
-                mRecarga = Double.parseDouble(req.getParameter("moreplata"));
-                ne.saldoRecargar(mRecarga);
-                System.out.println("Ha recargado " + mRecarga + " en tu cuenta Nequi.   Terminado...");
-                req.setAttribute("nequiTl", ne.saldoConsultar());
-                req.getRequestDispatcher("nequi.jsp").forward(req, resp);
+            case "recargarDa":
+                saldoRecargard(req, resp);
             break;
-
-            case "retirad":
-                mRetiro = Double.parseDouble((req.getParameter("lessplata")));
-                ne.saldoRetirar(mRetiro);
-                req.setAttribute("nequiTl", ne.saldoConsultar());
-                req.getRequestDispatcher("nequi.jsp").forward(req, resp);
+            case "retirarDa":
+                saldoRetirard(req, resp);
             break;
         }
+    
+}
 
+
+
+int total = 0;
+    private void saldoRecargar(HttpServletRequest req, HttpServletResponse resp) {
+        if(req.getParameter("telephono") != null) {
+            nVO.setTelefono(Integer.parseInt(req.getParameter("telephono")));
+        }
+
+        if(req.getParameter("cantidadRCN") != null) {
+            nVO.setSaldo(Integer.parseInt(req.getParameter("cantidadRCN")));
+            String saldo = req.getParameter("cantidadRCN");
+            nVO.setSaldo(Integer.parseInt(saldo));
+            total = total + Integer.parseInt(saldo);
+            req.getSession().setAttribute("saldo", total);
+            System.out.println("Se recargo el saldo con exito éxito");
+            
+        }
+
+        try {
+            nDAO.saldoRecargar(nVO);
+            System.out.println("con la recarga, del nequi totales son "+total);
+            req.getRequestDispatcher("view/nequi.jsp").forward(req, resp);
+        }
+        catch(Exception e) {
+            System.out.println("Error al recargar estación " +e.getMessage().toString());
+        }
+    
+    }
+
+    int totald = 0;
+    private void saldoRecargard(HttpServletRequest req, HttpServletResponse resp) {
+        if(req.getParameter("telephono") != null) {
+            DVO.setTelefono(Integer.parseInt(req.getParameter("telephono")));
+        }
+
+        if(req.getParameter("masplata") != null) {
+            DVO.setTelefono(Integer.parseInt("masplata"));
+            String saldod = req.getParameter("masplata");
+            DVO.setSaldo(Integer.parseInt(saldod));
+            totald = totald + Integer.parseInt(saldod);
+            req.getSession().setAttribute("saldod", totald);
+            System.out.println("Se recargo el saldo con exito éxito");
+            
+        }
+
+        try {
+            dDAO.saldoRecargard(DVO);
+            System.out.println("con la recarga, del davi totales son "+total);
+            req.getRequestDispatcher("view/r_resultado.jsp").forward(req, resp);
+        }
+        catch(Exception e) {
+            System.out.println("Error al recargar daviplata " +e.getMessage().toString());
+        }
+    
+    }
+
+     private void saldoRetirard(HttpServletRequest req, HttpServletResponse resp) {
+        if(req.getParameter("telephono") != null) {
+            DVO.setTelefono(Integer.parseInt(req.getParameter("telephono")));
+        }
+
+        if(req.getParameter("menplata") != null) {
+            DVO.setSaldo(Integer.parseInt(req.getParameter("menplata")));
+            String saldod = req.getParameter("menplata");
+            DVO.setSaldo (Integer.parseInt(saldod));
+            totald = totald - Integer.parseInt(saldod);
+            req.getSession().setAttribute("saldod", totald);
+            System.out.println("Retiro de davi con éxito");
+        }
+
+        try {
+            dDAO.saldoRetirard(DVO);
+            System.out.println("Se retiro del davi");
+            // Despues de realizar la operación que redirija al home.jsp
+            req.getRequestDispatcher("view/ret_resul.jsp").forward(req, resp);
+        }
+        catch (Exception e) {
+            System.out.println("Error al retirar de davi "+e.getMessage().toString());
+        }
+
+}
+    
+    private void saldoRetirar(HttpServletRequest req, HttpServletResponse resp) {
+        if(req.getParameter("telephono") != null) {
+            nVO.setTelefono(Integer.parseInt(req.getParameter("telephono")));
+        }
+
+        if(req.getParameter("cantidadRTN") != null) {
+            nVO.setSaldo(Integer.parseInt(req.getParameter("cantidadRTN")));
+            String saldo = req.getParameter("cantidadRTN");
+            nVO.setSaldo (Integer.parseInt(saldo));
+            total = total - Integer.parseInt(saldo);
+            req.getSession().setAttribute("saldo", total);
+            System.out.println("Retiro de nequi con éxito");
+        }
+
+        try {
+            nDAO.saldoRetirar(nVO);
+            System.out.println("Se retiro de nequi");
+            // Despues de realizar la operación que redirija al home.jsp
+            req.getRequestDispatcher("view/nequi.jsp").forward(req, resp);
+        }
+        catch (Exception e) {
+            System.out.println("Error al retirar galones "+e.getMessage().toString());
+        }
 
 }
 }

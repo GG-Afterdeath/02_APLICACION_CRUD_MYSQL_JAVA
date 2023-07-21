@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="verificar.css">
+    <link rel="stylesheet" href="assets/css/verificar.css">
     <title>Validación</title>
 </head>
 <body>
@@ -35,21 +35,21 @@
             <form id="logeo" action="usuario" method="post">
                 <h1>Iniciar sesión</h1>
                 <label for="usuario"></label> <br>
-                <input type="text" id="usuario"  placeholder="Dígite cédula"><br>
+                <input type="text" id="usuario" name="cedula" placeholder="Dígite cédula"><br>
 
                 <label for="password"></label>
-                <input type="password" id="password"  placeholder="Contraseña"> <br>
+                <input type="password" id="password" name="contrasena" placeholder="Contraseña"> <br>
                 
-                <button type="submit" id="boton">Ingresar</button>
+                <button name="accionU" value="inicio" type="submit" id="boton">Ingresar</button>
             </form>
 
             <form id="registro" action="usuario" method="post">
                 <h1>Registrarme</h1>
                 <label for="cedula"></label>
-                <input type="text" name="cedula" id="cedula" required name="usuario" placeholder=" cédula"><br>
+                <input type="text" name="cedula" id="cedula" placeholder=" cédula"><br>
 
                 <label for="password"></label>
-                <input type="password" name="contrasena" id="clave"  placeholder="Contraseña"> <br>
+                <input type="password" name="contrasena" id="clave"  placeholder="Contrasena"> <br>
                 
                 <input type="number" id="telefono" name="telephono"  placeholder="Teléfono"> <br>
 
@@ -57,11 +57,11 @@
 
                 <input type="text" id="apellido" name="apellido"  placeholder="Apellido"> <br>
 
-                <button name="accionU" type="submit" value="registro" id="boton">Registrar</button>
+                <button type="submit" name="accionU"  value="registro" id="boton">Registrar</button>
             </form>
         </div>
     </article>
 
-    <script src="verificar.js"></script>
+    <script src="assets/js/verificar.js"></script>
 </body>
 </html>

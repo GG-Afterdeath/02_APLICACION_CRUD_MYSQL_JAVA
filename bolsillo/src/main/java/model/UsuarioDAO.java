@@ -37,7 +37,7 @@ public class UsuarioDAO {
             ps.close(); // 4. Cerrar esta sentencia. !!!!! 
             System.out.println("Registro en Marte exitoso.    Terminado...");
         }catch(Exception e){// Se instancia excepción.
-            System.out.println("Hubo un error en el registro.   Volver a intentar....");
+            System.out.println("Hubo un error en el registro. " + e.getMessage());
         }finally{
             con.close(); //Cerrar conexión con la base de datos !!!!
         } 
@@ -100,7 +100,55 @@ public class UsuarioDAO {
             con.close(); //Cerrar conexión con la base de datos !!!!
         } 
          return rws;  
-        
     }
+
+    public int iniciarSesion(UsuarioVO uVO)throws SQLException{
+        sql = "SELECT * FROM usuario WHERE Cedula = ? AND Contrasena = ?";
+        try{
+            con = Conectora.conectar();
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, uVO.getCedula());
+            ps.setString(2, uVO.getContrasena());
+            rs = ps.executeQuery();
+            while(rs.next()){
+                rws += 1;
+                uVO.setCedula(rs.getInt("Cedula"));
+                uVO.setContrasena(rs.getString("Contrasena"));
+            }
+            if(rws == 1){
+                return 1;
+            }else{
+                return 0;
+            }
+        }catch (Exception e){
+            System.out.println("Error al iniciar sesion " + e.getMessage());
+            return 0;
+        }
+}
+
+public List<UsuarioVO> listarUsuario()throws SQLException{
+    List<UsuarioVO> usuario = new ArrayList<>();
+    sql = "SELECT * FROM usuario";
+    try{
+        con = Conectora.conectar();
+        ps = con.prepareStatement(sql);
+        rs = ps.executeQuery(sql);
+        // next recorre cada una de las columnas con esta sentencia
+        while(rs.next()){
+            UsuarioVO uVO = new UsuarioVO();
+            uVO.setCedula(rs.getInt("Cedula"));
+            uVO.setNombre(rs.getString("Nombre"));
+            uVO.setApellido(rs.getString("Apellido"));
+            uVO.setTelefono(rs.getInt("Telefono"));
+            usuario.add(uVO);
+        }
+        ps.close();
+    }catch(Exception e){
+        System.out.println("Error al consultar " + e.getMessage());
+    }finally{
+        con.close();
+    }
+    return usuario;
+}
 }
 
